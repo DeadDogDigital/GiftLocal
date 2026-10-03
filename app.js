@@ -66,7 +66,7 @@ async function load(){
       if(redeemed){
         action='<div class="badge">Treat redeemed</div>';
       }else if(pending){
-        action='<div class="badge">Ready to show</div><div class="show-code"><strong>SHOW THIS QR CODE TO THE BUSINESS</strong></div><div class="qr-wrap"><canvas id="qr-'+o.id+'"></canvas></div><div class="code">'+esc(r.redemption_code)+'</div><p class="meta qr-help">The business scans this code. Your treat is reserved for 10 minutes.</p>';
+        action='<div class="badge">Ready to show</div><div class="show-code"><strong>SHOW THIS QR CODE TO THE BUSINESS</strong></div><div class="qr-wrap"><canvas id="qr-'+o.id+'"></canvas></div><div class="code">'+esc(r.redemption_code)+'</div><p class="meta qr-help">The business scans this code. Your treat is reserved for 10 minutes.</p><button class="fallback-redeem" data-fallback="'+o.id+'">Business: redeem on this phone</button><p class="meta fallback-help">Use this if the business can't get a signal to scan the QR. Your phone needs an internet connection.</p>';
       }else{
         action='<button data-offer="'+o.id+'">Use this treat</button>';
       }
