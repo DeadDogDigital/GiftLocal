@@ -81,6 +81,7 @@ async function load(){
     }).join(""):'<div class="card state"><p>No treats are currently available.</p></div>';
 
     document.querySelectorAll("[data-offer]").forEach(b=>b.onclick=()=>showConfirm(offers.find(o=>o.id===b.dataset.offer)||{title:"this treat"},b));
+    document.querySelectorAll("[data-fallback]").forEach(b=>b.onclick=()=>fallbackConfirm(offers.find(o=>o.id===b.dataset.fallback)||{title:"this treat"}));
 
     for(const o of offers){
       const r=o.redemption;
@@ -104,6 +105,38 @@ async function load(){
     $("#loading").classList.add("hidden");
     $("#booklet").classList.remove("hidden");
   }catch(e){error(e.message||"We couldn't open your treats.");}
+}
+
+function fallbackConfirm(offer){
+  const existing=document.querySelector("#fallbackDialog");
+  if(existing)existing.remove();
+  const dialog=document.createElement("div");
+  dialog.id="fallbackDialog";
+  dialog.innerHTML=
+    '<div class="confirm-backdrop"></div>'+
+    '<div class="confirm-card" role="dialog" aria-modal="true">'+
+      '<div class="gift">📱</div>'+
+      '<p class="eyebrow">BUSINESS REDEMPTION</p>'+
+      '<h2>'+esc(offer.title)+'</h2>'+
+      '<p>The business should only continue after applying the offer.</p>'+
+      '<p><strong>This will redeem the treat now.</strong></p>'+
+      '<div class="confirm-actions"><button class="cancel">Not yet</button><button class="confirm">Redeem this treat</button></div>'+
+    '</div>';
+  document.body.appendChild(dialog);
+  dialog.querySelector(".cancel").onclick=()=>dialog.remove();
+  dialog.querySelector(".confirm").onclick=async()=>{
+    const b=dialog.querySelector(".confirm");
+    b.disabled=true;b.textContent="Redeeming…";
+    try{
+      await rpc("confirm_redemption",{p_redemption_code:findPendingCode(offer.id)});
+      dialog.remove();
+      await load();
+    }catch(e){b.disabled=false;b.textContent="Redeem this treat";alert(e.message||"This treat couldn't be redeemed.");}
+  };
+}
+function findPendingCode(offerId){
+  const article=document.querySelector("[data-fallback='"+offerId+"']")?.closest(".offer");
+  return article?.querySelector(".code")?.textContent.trim();
 }
 
 async function redeem(offer,button){
