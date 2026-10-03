@@ -48,8 +48,8 @@ export default async (req)=>{
   let hook;
   try{hook=JSON.parse(raw)}catch{return json({error:"Invalid JSON"},400);}
 
-  const existing=await supabase("ticket_tailor_webhook_events?select=id&webhook_id=eq."+encodeURIComponent(hook.id));
-  if(existing.length)return json({ok:true,duplicate:true});
+  const existing=await supabase("ticket_tailor_webhook_events?select=id,processed_at&webhook_id=eq."+encodeURIComponent(hook.id));
+  if(existing.length&&existing[0].processed_at)return json({ok:true,duplicate:true});
 
   await supabase("ticket_tailor_webhook_events",{
     method:"POST",
@@ -76,10 +76,17 @@ export default async (req)=>{
   const qs=questionMap(buyer.custom_questions||[]);
   const start=order.event_summary?.start_date?.iso||null;
 
-  const booklet=(await supabase("booklets",{
-    method:"POST",
-    body:JSON.stringify({campaign_id:campaign.id,expires_at:order.event_summary?.end_date?.iso||null})
-  }))[0];
+  const existingBooking=await supabase("santa_bookings?ticket_tailor_order_id=eq."+encodeURIComponent(order.id)+"&select=id,booklet_id&limit=1");
+
+  let booklet;
+  if(existingBooking.length){
+    booklet=(await supabase("booklets?id=eq."+encodeURIComponent(existingBooking[0].booklet_id)+"&select=id&limit=1"))[0];
+  }else{
+    booklet=(await supabase("booklets",{
+      method:"POST",
+      body:JSON.stringify({campaign_id:campaign.id,expires_at:order.event_summary?.end_date?.iso||null})
+    }))[0];
+  }
 
   const bookingPayload={
     ticket_tailor_order_id:order.id,
@@ -95,7 +102,6 @@ export default async (req)=>{
     raw_payload:order
   };
 
-  const existingBooking=await supabase("santa_bookings?ticket_tailor_order_id=eq."+encodeURIComponent(order.id)+"&select=id&limit=1");
   let booking;
   if(existingBooking.length){
     booking=(await supabase("santa_bookings?id=eq."+encodeURIComponent(existingBooking[0].id),{method:"PATCH",body:JSON.stringify({...bookingPayload,updated_at:new Date().toISOString()})}))[0];
@@ -113,7 +119,7 @@ export default async (req)=>{
     santa_notes:qs["anything santa should mention"]||null
   }));
 
-  if(children.length)await supabase("santa_children",{method:"POST",body:JSON.stringify(children)});
+  if(children.length && !existingBooking.length)await supabase("santa_children",{method:"POST",body:JSON.stringify(children)});
 
   await supabase("ticket_tailor_webhook_events?webhook_id=eq."+encodeURIComponent(hook.id),{
     method:"PATCH",
