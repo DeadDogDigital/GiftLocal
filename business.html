@@ -6,19 +6,15 @@
 <title>Redeem a Treat — Santa's Local Treats</title>
 <link rel="stylesheet" href="/style.css">
 <style>
-.business-page{max-width:560px;margin:auto}
-.business-page .hero{padding-bottom:24px}
-.lookup{padding:24px}
+.business-page{max-width:560px;margin:auto}.business-page .hero{padding-bottom:24px}.lookup{padding:24px}
 .lookup label{display:block;font-weight:700;color:var(--green);margin-bottom:8px}
 .lookup input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;background:white;padding:16px;font-size:20px;letter-spacing:.12em;text-transform:uppercase}
 .lookup button{width:100%;border:0;border-radius:999px;padding:15px;margin-top:14px;background:var(--green);color:white;font-weight:700;font-size:16px}
-.result{margin-top:16px}
-.valid{border:2px solid #547b62}
-.invalid{border:2px solid var(--red)}
+.result{margin-top:16px}.valid{border:2px solid #547b62}.invalid{border:2px solid var(--red)}
 .result .status{font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:#547b62}
-.result h2{font:700 30px/1.1 Georgia,serif;color:var(--green);margin:8px 0}
-.result .code{margin-top:18px}
+.result h2{font:700 30px/1.1 Georgia,serif;color:var(--green);margin:8px 0}.result .code{margin-top:18px}
 .help{text-align:center;color:var(--muted);font-size:13px;line-height:1.5;margin-top:18px}
+.confirm-business{background:var(--green)!important;color:#fff!important}
 </style>
 </head>
 <body>
@@ -27,15 +23,15 @@
 <div class="mark">✦</div>
 <p class="eyebrow">HEXHAM • SANTA'S LOCAL TREATS</p>
 <h1>Redeem a<br><em>Customer Treat</em></h1>
-<p>Check the customer's redemption code before applying their offer.</p>
+<p>Scan the customer's QR code or enter their code manually.</p>
 </header>
 <section class="card lookup">
-<label for="code">Redemption code</label>
-<input id="code" autocomplete="off" autocapitalize="characters" placeholder="e.g. 68C91A1388CB" maxlength="20">
+<label for="code">Customer treat code</label>
+<input id="code" autocomplete="off" autocapitalize="characters" placeholder="Scan QR or enter code" maxlength="20">
 <button id="check">Check treat</button>
 <div id="result" class="result hidden"></div>
 </section>
-<p class="help">The customer should show you their redemption code. This screen only shows the information needed to validate the treat.</p>
+<p class="help">Scanning a customer's QR code opens this page with their treat ready to check. You only need to confirm the redemption after applying the offer.</p>
 </main>
 <script src="/business.js"></script>
 </body>
