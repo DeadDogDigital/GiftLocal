@@ -86,9 +86,17 @@ async function load(){
       const r=o.redemption;
       if(r&&r.status==="pending"){
         const canvas=document.querySelector("#qr-"+o.id);
-        if(canvas&&window.QRCode){
+        if(canvas&&typeof qrcode==="function"){
           const url=location.origin+"/business.html?code="+encodeURIComponent(r.redemption_code);
-          QRCode.toCanvas(canvas,url,{width:230,margin:2},()=>{});
+          const qr=qrcode(0,"M");
+          qr.addData(url);
+          qr.make();
+          const img=document.createElement("img");
+          img.alt="Scan to redeem this treat";
+          img.width=230;
+          img.height=230;
+          img.src=qr.createDataURL(6,0);
+          canvas.replaceWith(img);
         }
       }
     }
