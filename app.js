@@ -87,7 +87,7 @@ async function load(){
       if(r&&r.status==="pending"){
         const canvas=document.querySelector("#qr-"+o.id);
         if(canvas&&window.QRCode){
-          const url=location.origin+"/redeem/"+encodeURIComponent(r.redemption_code);
+          const url=location.origin+"/business.html?code="+encodeURIComponent(r.redemption_code);
           QRCode.toCanvas(canvas,url,{width:230,margin:2},()=>{});
         }
       }
