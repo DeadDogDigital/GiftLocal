@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Santa's Local Treats — Admin</title><link rel="stylesheet" href="/style.css">
+<style>
+.admin{max-width:1100px;margin:auto}.panel{padding:22px;margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+input,select,textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit}
+label{display:block;font-weight:700;margin:10px 0 6px;color:var(--green)}button{border:0;border-radius:999px;padding:12px 18px;background:var(--green);color:#fff;font-weight:700;cursor:pointer;margin-top:12px}.secondary{background:#eee9dd;color:var(--ink)}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid var(--line);padding:14px 0}.muted{color:var(--muted)}.hidden{display:none!important}.notice{padding:12px;border-radius:10px;background:#f3efe5;margin:12px 0}.danger{color:var(--red)}
+</style></head>
+<body><main class="admin">
+<header class="hero"><div class="mark">✦</div><p class="eyebrow">HEXHAM • SANTA'S LOCAL TREATS</p><h1>Campaign<br><em>Admin</em></h1><p>Manage campaigns, businesses, offers and Santa visits.</p></header>
+
+<section id="auth" class="card panel"><h2>Admin sign in</h2><label>Email</label><input id="email" type="email"><label>Password</label><input id="password" type="password"><button id="login">Sign in</button><div id="authMsg" class="notice hidden"></div></section>
+
+<section id="app" class="hidden">
+<div class="card panel"><div class="row"><div><strong id="userEmail"></strong><div class="muted">Platform admin</div></div><button id="logout" class="secondary">Sign out</button></div></div>
+
+<section class="card panel"><h2>Campaigns</h2><div id="campaigns"></div><details><summary>Create campaign</summary><label>Name</label><input id="cName" value="Santa's Local Treats — Hexham"><label>Slug</label><input id="cSlug" value="santas-local-treats-hexham"><label>Starts</label><input id="cStart" type="datetime-local" value="2026-12-01T00:00"><label>Ends</label><input id="cEnd" type="datetime-local" value="2027-01-31T23:59"><button id="createCampaign">Create campaign</button></details></section>
+
+<section class="card panel"><h2>Businesses</h2><div id="businesses"></div><details><summary>Add business</summary><label>Name</label><input id="bName"><label>Category</label><input id="bCategory"><label>Contact name</label><input id="bContact"><label>Contact email</label><input id="bEmail" type="email"><button id="createBusiness">Add business</button></details></section>
+
+<section class="card panel"><h2>Offers</h2><div class="grid"><div><label>Campaign</label><select id="oCampaign"></select></div><div><label>Business</label><select id="oBusiness"></select></div></div><label>Offer title</label><input id="oTitle" placeholder="10% off your bill"><label>Description</label><textarea id="oDescription" rows="2"></textarea><label>Terms</label><textarea id="oTerms" rows="2"></textarea><button id="createOffer">Create offer</button><div id="offers"></div></section>
+
+<section class="card panel"><h2>Santa visits</h2><div id="bookings"></div></section>
+</section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/admin.js"></script></body></html>
