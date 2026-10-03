@@ -11,3 +11,6 @@
 .confirm-actions .confirm{background:var(--green);color:#fff}
 .show-code{text-align:center;margin-top:18px!important;color:var(--red)!important;font-size:12px!important;letter-spacing:.06em}
 .used .code{font-size:21px;padding:16px;letter-spacing:.18em}
+
+.fallback-redeem{width:100%;margin-top:12px;background:transparent!important;color:var(--green)!important;border:1px solid var(--green)!important}
+.fallback-help{text-align:center;font-size:12px}
