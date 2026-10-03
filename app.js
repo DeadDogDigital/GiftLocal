@@ -38,6 +38,34 @@ async function rpc(name,body){
   return data;
 }
 
+function showConfirm(offer,button){
+  const existing=document.querySelector("#confirmDialog");
+  if(existing)existing.remove();
+
+  const dialog=document.createElement("div");
+  dialog.id="confirmDialog";
+  dialog.innerHTML=
+    '<div class="confirm-backdrop"></div>'+
+    '<div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">'+
+      '<div class="gift">🎁</div>'+
+      '<p class="eyebrow">READY TO USE YOUR TREAT?</p>'+
+      '<h2 id="confirmTitle">'+esc(offer.title)+'</h2>'+
+      '<p>Only confirm when you are ready to show the redemption code to the business.</p>'+
+      '<p><strong>This treat can only be used once.</strong></p>'+
+      '<div class="confirm-actions">'+
+        '<button class="cancel">Not yet</button>'+
+        '<button class="confirm">Yes, use my treat</button>'+
+      '</div>'+
+    '</div>';
+
+  document.body.appendChild(dialog);
+  dialog.querySelector(".cancel").onclick=()=>dialog.remove();
+  dialog.querySelector(".confirm").onclick=async()=>{
+    dialog.remove();
+    await redeem(offer.id,button);
+  };
+}
+
 async function load(){
   if(!token)return error("This Treat Booklet link is incomplete.");
   try{
@@ -59,13 +87,19 @@ async function load(){
             (o.terms?'<div class="meta">'+esc(o.terms)+'</div>':"")+
             '<div class="meta">Valid until '+date(o.valid_until||campaign.ends_at)+'</div>'+
             (r
-              ? '<div class="badge">Treat used</div><div class="code">'+esc(r.redemption_code)+'</div>'
+              ? '<div class="badge">Treat used</div><p class="show-code"><strong>SHOW THIS CODE TO THE BUSINESS</strong></p><div class="code">'+esc(r.redemption_code)+'</div><p class="meta">Keep this screen open while the business checks your treat.</p>'
               : '<button data-offer="'+o.id+'">Use this treat</button>')+
           '</article>';
         }).join("")
       : '<div class="card state"><p>No treats are currently available.</p></div>';
 
-    document.querySelectorAll("[data-offer]").forEach(b=>b.onclick=()=>redeem(b.dataset.offer,b));
+    document.querySelectorAll("[data-offer]").forEach(b=>{
+      b.onclick=()=>showConfirm(
+        offers.find(o=>o.id===b.dataset.offer)||{title:"this treat"},
+        b
+      );
+    });
+
     $("#loading").classList.add("hidden");
     $("#booklet").classList.remove("hidden");
   }catch(e){
@@ -74,11 +108,11 @@ async function load(){
 }
 
 async function redeem(offer,button){
-  if(!confirm("Use this treat now? It can only be used once."))return;
   button.disabled=true;
   try{
     await rpc("redeem_offer",{p_access_token:token,p_offer_id:offer});
     await load();
+    window.scrollTo({top:document.querySelector(".used")?.offsetTop||0,behavior:"smooth"});
   }catch(e){
     alert(e.message||"That treat couldn't be used.");
     button.disabled=false;
