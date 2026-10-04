@@ -1,5 +1,3 @@
-const SUPABASE_URL="https://atewdukqcmsamcdcdrvx.supabase.co";
-const SUPABASE_KEY="sb_publishable_1IouD0L-dhVbFlDtSYSXow_Q3OvIJor";
 const params=new URLSearchParams(location.search);
 const pathMatch=location.pathname.match(/^\/treats\/([^/]+)/i);
 const token=params.get("token")||pathMatch?.[1]||params.get("t");
@@ -17,15 +15,25 @@ function error(msg){
   $("#error").classList.remove("hidden");
 }
 async function rpc(name,body){
-  const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/"+name,{
-    method:"POST",
-    headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},
-    body:JSON.stringify(body)
-  });
-  const text=await r.text();
-  let data; try{data=JSON.parse(text)}catch{data=text}
-  if(!r.ok)throw new Error(data?.message||data?.error||String(data)||"Request failed");
-  return data;
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),12000);
+  try{
+    const r=await fetch("/.netlify/functions/supabase-rpc",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name,body}),
+      signal:controller.signal
+    });
+    const text=await r.text();
+    let data; try{data=JSON.parse(text)}catch{data=text}
+    if(!r.ok)throw new Error(data?.message||data?.error||String(data)||"Request failed");
+    return data;
+  }catch(e){
+    if(e.name==="AbortError")throw new Error("The treats service took too long to respond. Please try again.");
+    throw e;
+  }finally{
+    clearTimeout(timer);
+  }
 }
 
 function showConfirm(offer,button){
