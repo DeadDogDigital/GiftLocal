@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Santa's Local Treats</title>
+<meta name="theme-color" content="#193c31">
+<title>Santa's Local Treats | Hexham</title>
 <link rel="stylesheet" href="/style.css">
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
 <body>
 <main>
@@ -15,30 +15,20 @@
 <h1>Santa's<br><em>Local Treats</em></h1>
 <p>A little something from Santa — exclusive treats from local Hexham businesses.</p>
 </header>
-
-<section id="loading" class="card state">
-<div class="spinner"></div>
-<p>Opening your treats…</p>
-</section>
-
-<section id="error" class="card state hidden">
+<section class="card state">
 <div class="gift">🎁</div>
-<h2>We couldn't open your treats</h2>
-<p id="errorText"></p>
+<h2>Your little local adventure starts here</h2>
+<p>Families visiting Santa can discover special treats from businesses around Hexham. Keep an eye out for your personal Treat Booklet link after your Santa visit.</p>
+<p><strong>Have your Treat Booklet link already?</strong><br>Open the personal link Santa gave you to see your treats.</p>
 </section>
-
-<section id="booklet" class="hidden">
-<div class="card welcome">
-<p class="eyebrow">A LITTLE SOMETHING FROM SANTA</p>
-<h2 id="campaignName">Your treats</h2>
-<p id="campaignDescription"></p>
+<section class="card welcome" style="margin-top:15px">
+<p class="eyebrow">HOW IT WORKS</p>
+<h2>Good things, close to home</h2>
+<p>Discover exclusive offers from local businesses, show your treat QR code when you're ready to use an offer, and enjoy a little extra Christmas magic in Hexham.</p>
 <hr>
-<small>When you're ready to claim a treat, tap <strong>Use this treat</strong>. You'll then show a QR code to the business.</small>
-</div>
-<div id="offers"></div>
-<footer>Made with a little Christmas magic in Hexham.<br><span>Treats are subject to individual offer terms and campaign dates.</span></footer>
+<small>Each Treat Booklet is personal. You don't need to create an account to use yours.</small>
 </section>
+<footer>Made with a little Christmas magic in Hexham.<br><span>Treats are subject to individual offer terms and campaign dates.</span></footer>
 </main>
-<script src="/app.js?v=3"></script>
 </body>
 </html>
