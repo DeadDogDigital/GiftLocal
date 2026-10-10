@@ -9,7 +9,7 @@ async function load(){
  const {data:{user}}=await sb.auth.getUser();
  if(!user){$("#auth").classList.remove("hidden");$("#app").classList.add("hidden");return}
  $("#auth").classList.add("hidden");$("#app").classList.remove("hidden");$("#userEmail").textContent=user.email||"Signed in";
- await Promise.all([campaigns(),businesses(),offers(),bookings()]);
+ await Promise.all([campaigns(),businesses(),offers()]);
 }
 async function campaigns(){
  const {data,error}=await sb.from("campaigns").select("*").order("created_at");
@@ -28,11 +28,7 @@ async function offers(){
  if(error)return msg(error.message);
  $("#offers").innerHTML=(data||[]).map(o=>'<div class="row"><div><strong>'+esc(o.title)+'</strong><div class="muted">'+esc(o.businesses?.name||"")+' · '+esc(o.campaigns?.name||"")+'</div></div><div>'+ (o.active?"Active":"Off")+'</div></div>').join("")||'<p class="muted">No offers.</p>';
 }
-async function bookings(){
- const {data,error}=await sb.from("santa_bookings").select("*,santa_children(*)").order("visit_starts_at");
- if(error)return msg(error.message);
- $("#bookings").innerHTML=(data||[]).map(b=>'<div class="row"><div><strong>'+esc(b.parent_first_name||"")+" "+esc(b.parent_last_name||"")+'</strong><div class="muted">'+esc(b.parent_email||"")+' · '+(b.visit_starts_at?new Date(b.visit_starts_at).toLocaleString("en-GB"):"")+'</div><div>'+((b.santa_children||[]).map(c=>esc(c.first_name)+(c.age!=null?" ("+c.age+")":"")).join(", ")||"No child details yet")+'</div></div><div>'+esc(b.status)+'</div></div>').join("")||'<p class="muted">No bookings yet.</p>';
-}
+
 $("#signup").onclick=async()=>{const email=$("#email").value.trim();const password=$("#password").value;if(!email||password.length<8)return msg("Enter an email and a password of at least 8 characters.");const {error}=await sb.auth.signUp({email,password});if(error)msg(error.message);else msg("Account created. If email confirmation is enabled, confirm your email, then sign in.")};
 $("#login").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#password").value});if(error)msg(error.message);else load()};
 $("#logout").onclick=async()=>{await sb.auth.signOut();load()};
