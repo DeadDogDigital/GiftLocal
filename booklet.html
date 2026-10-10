@@ -36,7 +36,7 @@
 <footer>Made with a little Christmas magic in Hexham.<br><span>Treats are subject to individual offer terms and campaign dates.</span></footer>
 </section>
 </main>
-<script>window.addEventListener("error",function(){var l=document.getElementById("loading"),e=document.getElementById("error"),t=document.getElementById("errorText");if(l&&e&&t&&!l.classList.contains("hidden")){l.classList.add("hidden");t.textContent="The booklet script failed to load or run. Please refresh the page; if it continues, contact us.";e.classList.remove("hidden");}});</script>
+<script>window.addEventListener("error",function(event){if(event.target!==window)return;var l=document.getElementById("loading"),e=document.getElementById("error"),t=document.getElementById("errorText");if(l&&e&&t&&!l.classList.contains("hidden")){l.classList.add("hidden");t.textContent="JavaScript error: "+(event.message||"unknown error")+(event.lineno?" (line "+event.lineno+")":"")+". Please send us a screenshot of this message.";e.classList.remove("hidden");}});</script>
 <script src="/app.js?v=5" onerror="document.getElementById('loading').classList.add('hidden');document.getElementById('errorText').textContent='The booklet script could not be loaded. Please refresh the page.';document.getElementById('error').classList.remove('hidden');"></script>
 </body>
 </html>
