@@ -43,8 +43,8 @@ $("#createCampaign").onclick=async()=>{
 $("#createBusiness").onclick=async()=>{
  const name=$("#bName").value.trim(); if(!name)return;
  const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
- const {error}=await sb.from("businesses").insert({name,slug,town:"Hexham",category:$("#bCategory").value,contact_name:$("#bContact").value,contact_email:$("#bEmail").value});
- if(error)msg(error.message);else{["bName","bCategory","bContact","bEmail"].forEach(id=>$("#"+id).value="");businesses()}
+ const {error}=await sb.from("businesses").insert({name,slug,town:"Hexham",category:$("#bCategory").value,contact_name:$("#bContact").value,contact_email:$("#bEmail").value,contact_phone:$("#bPhone").value,address:$("#bAddress").value,website_url:$("#bWebsite").value,onboarding_status:"prospect",active:false});
+ if(error)msg(error.message);else{["bName","bCategory","bContact","bEmail","bPhone","bAddress","bWebsite"].forEach(id=>$("#"+id).value="");businesses()}
 };
 $("#createOffer").onclick=async()=>{
  const {error}=await sb.from("offers").insert({campaign_id:$("#oCampaign").value,business_id:$("#oBusiness").value,title:$("#oTitle").value,description:$("#oDescription").value,terms:$("#oTerms").value,active:true});
