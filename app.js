@@ -1,6 +1,6 @@
 const params=new URLSearchParams(location.search);
 const pathMatch=location.pathname.match(/^\/treats\/([^/]+)/i);
-const token=params.get("token")||pathMatch?.[1]||params.get("t");
+const token=params.get("token")||pathMatch?.[1]||params.get("t")||(location.pathname.replace(/\/$/,"")==="/test"?"7811d5bf08c890f3059876e2144d9a7d024dca6c4aa32056a334b29430614816":null);
 
 const $=s=>document.querySelector(s);
 
