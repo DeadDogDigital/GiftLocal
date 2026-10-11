@@ -61,6 +61,9 @@ async function load(){
   try{
     const data=await rpc("get_booklet",{p_access_token:token});
     const campaign=data.campaign||{};
+    const booklet=data.booklet||{};
+    const familyBanner=$("#familyBanner");
+    if(familyBanner){const surname=String(booklet.family_surname||"").trim();familyBanner.textContent=surname?"Just for the "+surname+" Family":"";familyBanner.classList.toggle("hidden",!surname);}
     const offers=data.offers||[];
     $("#campaignName").textContent=campaign.name||"Your treats";
     $("#campaignDescription").textContent=campaign.description||"Enjoy a few treats from local Hexham businesses.";
