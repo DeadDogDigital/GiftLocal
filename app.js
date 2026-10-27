@@ -68,6 +68,21 @@ async function load(){
     $("#campaignName").textContent=campaign.name||"Your treats";
     $("#campaignDescription").textContent=campaign.description||"Enjoy a few treats from local Hexham businesses.";
 
+    const redeemedCount=offers.filter(o=>o.redemption&&o.redemption.status==="redeemed").length;
+    const total=offers.length;
+    const remaining=Math.max(0,total-redeemedCount);
+    const progressPercent=total?Math.round((redeemedCount/total)*100):0;
+    const progressText=$("#progressText");
+    const offerCount=$("#offerCount");
+    const offerListCount=$("#offerListCount");
+    const progressFill=$("#progressFill");
+    const progressTrack=document.querySelector(".progress-track");
+    if(progressText)progressText.textContent=total?(redeemedCount===total?"Every treat enjoyed — lovely!":redeemedCount+" of "+total+" treats enjoyed"):"Your treats are being prepared";
+    if(offerCount)offerCount.textContent=total?progressPercent+"%":"";
+    if(offerListCount)offerListCount.textContent=remaining?remaining+" to discover":(total?"All enjoyed":"");
+    if(progressFill)progressFill.style.width=progressPercent+"%";
+    if(progressTrack)progressTrack.setAttribute("aria-valuenow",String(progressPercent));
+
     $("#offers").innerHTML=offers.length?offers.map(o=>{
       const biz=o.business||{};
       const r=o.redemption;
@@ -81,15 +96,18 @@ async function load(){
       }else{
         action='<button data-offer="'+o.id+'">Use this treat</button>';
       }
+      const mapQuery=encodeURIComponent([biz.name||"local business","Hexham","Northumberland"].filter(Boolean).join(" "));
+      const directions='<div class="offer-location"><span>📍 '+esc(biz.category||"Independent Hexham business")+'</span><a class="directions-link" href="https://www.google.com/maps/search/?api=1&query='+mapQuery+'" target="_blank" rel="noopener noreferrer">Find in Hexham ↗</a></div>';
       return '<article class="offer '+(r?"used":"")+'">'+
         '<div class="business">'+esc(biz.name||"Hexham business")+'</div>'+
         '<h3>'+esc(o.title)+'</h3>'+
         '<p>'+esc(o.description||"A little something from Santa.")+'</p>'+
-        (o.terms?'<div class="meta">'+esc(o.terms)+'</div>':"")+
-        '<div class="meta">Valid until '+date(o.valid_until||campaign.ends_at)+'</div>'+
+        directions+
+        (o.terms?'<div class="meta" style="margin-top:10px">'+esc(o.terms)+'</div>':"")+
+        '<div class="meta" style="margin-top:8px">Valid until '+date(o.valid_until||campaign.ends_at)+'</div>'+
         action+
       '</article>';
-    }).join(""):'<div class="card state"><p>No treats are currently available.</p></div>';
+    }).join(""):'<div class="card state"><div class="gift">🎁</div><h2>Your treats are on their way</h2><p>There aren’t any treats to show just yet. Please check back soon or ask one of Santa’s elves for help.</p></div>';
 
     document.querySelectorAll("[data-offer]").forEach(b=>b.onclick=()=>showConfirm(offers.find(o=>o.id===b.dataset.offer)||{title:"this treat"},b));
     document.querySelectorAll("[data-fallback]").forEach(b=>b.onclick=()=>fallbackConfirm(offers.find(o=>o.id===b.dataset.fallback)||{title:"this treat"}));
