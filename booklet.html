@@ -3,26 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Santa's Local Treats</title>
+<meta name="theme-color" content="#0f1f1a">
+<meta name="description" content="Your personal Santa's Local Treats booklet for discovering independent businesses around Hexham.">
+<title>Santa's Local Treats | Your Booklet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IM+Fell+English:ital@0;1&family=Crimson+Text:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
-<style>.family-banner{display:table;margin:14px auto 0;padding:12px 20px;border:1px solid #c9a85c;border-radius:12px;background:#12382d;color:#f2d995;font-weight:700;font-size:1.1rem;text-align:center}.family-banner.hidden{display:none!important}</style>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
 <body>
 <main>
 <header class="hero">
-<div class="mark">✦</div>
+<div class="mark" aria-hidden="true">✦</div>
 <p class="eyebrow">HEXHAM • CHRISTMAS 2026</p>
 <h1>Santa's<br><em>Local Treats</em></h1>
 <div id="familyBanner" class="family-banner hidden" aria-live="polite"></div>
-<p>A little something from Santa — exclusive treats from local Hexham businesses.</p>
+<p>Your personal collection of little local treats. Let's explore Hexham.</p>
 </header>
-<section id="loading" class="card state">
-<div class="spinner"></div>
-<p>Opening your treats…</p>
+<section id="loading" class="card state" aria-live="polite">
+<div class="spinner" aria-hidden="true"></div>
+<p>Unwrapping your treats…</p>
 </section>
-<section id="error" class="card state hidden">
-<div class="gift">🎁</div>
+<section id="error" class="card state hidden" role="alert">
+<div class="gift" aria-hidden="true">🎁</div>
 <h2>We couldn't open your treats</h2>
 <p id="errorText"></p>
 </section>
@@ -31,14 +35,18 @@
 <p class="eyebrow">A LITTLE SOMETHING FROM SANTA</p>
 <h2 id="campaignName">Your treats</h2>
 <p id="campaignDescription"></p>
-<hr>
-<small>When you're ready to claim a treat, tap <strong>Use this treat</strong>. You'll then show a QR code to the business.</small>
+<div id="bookletProgress" class="booklet-progress" aria-live="polite">
+<div class="booklet-progress-top"><span id="progressText">Your treats</span><span id="offerCount"></span></div>
+<div class="progress-track" role="progressbar" aria-label="Treats enjoyed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="progressFill" class="progress-fill"></div></div>
 </div>
-<div id="offers"></div>
+</div>
+<div class="booklet-tip"><strong>A little tip from Santa:</strong> Browse your treats now, but only tap <strong>Use this treat</strong> when you're at the business and ready to show the QR code. It reserves the treat for 10 minutes.</div>
+<div class="offer-list-heading"><h2>Your treats</h2><span id="offerListCount"></span></div>
+<div id="offers" aria-live="polite"></div>
 <footer>Made with a little Christmas magic in Hexham.<br><span>Treats are subject to individual offer terms and campaign dates.</span></footer>
 </section>
 </main>
-<script>window.addEventListener("error",function(event){if(event.target!==window)return;var l=document.getElementById("loading"),e=document.getElementById("error"),t=document.getElementById("errorText");if(l&&e&&t&&!l.classList.contains("hidden")){l.classList.add("hidden");t.textContent="JavaScript error: "+(event.message||"unknown error")+(event.lineno?" (line "+event.lineno+")":"")+". Please send us a screenshot of this message.";e.classList.remove("hidden");}});</script>
-<script src="/app.js?v=6" onerror="document.getElementById('loading').classList.add('hidden');document.getElementById('errorText').textContent='The booklet script could not be loaded. Please refresh the page.';document.getElementById('error').classList.remove('hidden');"></script>
+<script>window.addEventListener("error",function(event){if(event.target!==window)return;var l=document.getElementById("loading"),e=document.getElementById("error"),t=document.getElementById("errorText");if(l&&e&&t&&!l.classList.contains("hidden")){l.classList.add("hidden");t.textContent="Something went wrong while opening your booklet. Please refresh the page and try again."+(event.lineno?" (line "+event.lineno+")":"");e.classList.remove("hidden");}});</script>
+<script src="/app.js?v=7" onerror="document.getElementById('loading').classList.add('hidden');document.getElementById('errorText').textContent='The booklet could not load. Please refresh the page or ask a Santa elf for help.';document.getElementById('error').classList.remove('hidden');"></script>
 </body>
 </html>
