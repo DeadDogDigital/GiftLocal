@@ -48,7 +48,7 @@ function showConfirm(offer,button){
       '<p class="eyebrow">READY TO CLAIM YOUR TREAT?</p>'+
       '<h2>'+esc(offer.title)+'</h2>'+
       '<p>Only continue when you are with the business and ready to show them the QR code.</p>'+
-      '<p><strong>The treat will be reserved for 10 minutes.</strong></p>'+
+      '<p><strong>The treat will be reserved for 20 minutes.</strong></p>'+
       '<div class="confirm-actions"><button class="cancel">Not yet</button><button class="confirm">Show my QR code</button></div>'+
     '</div>';
   document.body.appendChild(dialog);
@@ -92,7 +92,7 @@ async function load(){
       if(redeemed){
         action='<div class="badge">Treat redeemed</div>';
       }else if(pending){
-        action='<div class="badge">Ready to show</div><button type="button" class="qr-toggle" data-toggle-qr="'+o.id+'" aria-expanded="true">Hide QR preview</button><div class="qr-preview" data-qr-preview="'+o.id+'"><div class="show-code"><strong>SHOW THIS QR CODE TO THE BUSINESS</strong></div><div class="qr-wrap"><canvas id="qr-'+o.id+'"></canvas></div><div class="code">'+esc(r.redemption_code)+'</div><p class="meta qr-help">The business scans this code. Your treat is reserved for 10 minutes.</p><button class="fallback-redeem" data-fallback="'+o.id+'">Business: redeem on this phone</button><p class="meta fallback-help">Use this if the business cannot get a signal to scan the QR. Your phone needs an internet connection.</p></div>';
+        action='<div class="badge">Ready to show</div><button type="button" class="qr-toggle" data-toggle-qr="'+o.id+'" aria-expanded="true">Hide QR preview</button><div class="qr-preview" data-qr-preview="'+o.id+'"><div class="show-code"><strong>SHOW THIS QR CODE TO THE BUSINESS</strong></div><div class="qr-wrap"><canvas id="qr-'+o.id+'"></canvas></div><div class="code">'+esc(r.redemption_code)+'</div><p class="meta qr-help">The business scans this code. Your treat is reserved for 20 minutes.</p><button class="fallback-redeem" data-fallback="'+o.id+'">Business: redeem on this phone</button><p class="meta fallback-help">Use this if the business cannot get a signal to scan the QR. Your phone needs an internet connection.</p></div>';
       }else{
         action='<button data-offer="'+o.id+'">Use this treat</button>';
       }
