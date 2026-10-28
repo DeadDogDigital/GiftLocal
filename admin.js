@@ -85,4 +85,28 @@ $("#createOffer").onclick=async()=>{
  if(error)return status("Offer creation failed: "+error.message);
  ["oTitle","oDescription","oTerms"].forEach(id=>$("#"+id).value="");status("Offer created.");await offers();
 };
+
+$("#createManualBooklet").onclick=async()=>{
+ const surname=$("#manualSurname").value.trim();
+ const button=$("#createManualBooklet");
+ const result=$("#manualBookletResult");
+ button.disabled=true;button.textContent="Creating…";
+ result.classList.add("hidden");
+ try{
+  const {data,error}=await sb.rpc("create_manual_treats_booklet",{p_family_surname:surname||null});
+  if(error)throw error;
+  if(!data?.ok||!data?.access_token)throw new Error("The booklet could not be created.");
+  const link=location.origin+"/treats/"+encodeURIComponent(data.access_token);
+  result.innerHTML="<strong>Extra booklet created.</strong><p>Share this personal link with the family:</p><p><a href=\""+esc(link)+"\" target=\"_blank\" rel=\"noopener noreferrer\">"+esc(link)+"</a></p><button type=\"button\" id=\"copyManualBooklet\" class=\"secondary\">Copy booklet link</button>";
+  result.classList.remove("hidden");
+  $("#copyManualBooklet").onclick=async()=>{
+   try{await navigator.clipboard.writeText(link);$("#copyManualBooklet").textContent="Link copied";}
+   catch{const field=document.createElement("input");field.value=link;result.appendChild(field);field.select();document.execCommand("copy");field.remove();$("#copyManualBooklet").textContent="Link copied";}
+  };
+  $("#manualSurname").value="";
+  status("Extra Treats booklet created.");
+ }catch(e){status("Could not create extra booklet: "+(e.message||"Please try again."));}
+ finally{button.disabled=false;button.textContent="Create extra booklet";}
+};
+
 load();
