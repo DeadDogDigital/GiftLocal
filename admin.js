@@ -12,27 +12,46 @@ async function load(){
  await Promise.all([campaigns(),businesses(),offers(),booklets()]);
 }
 
-async function booklets(){
- const el=$("#bookletsList");
- const {data,error}=await sb.from("booklets").select("id,access_token,status,created_at,expires_at,family_surname,source_booking_ref,campaigns(name)").order("created_at",{ascending:false}).limit(100);
- if(error){el.innerHTML='<p class="danger">Could not load booklets: '+esc(error.message)+'</p>';return;}
+let bookletOffset=0;
+const bookletPageSize=25;
+let bookletSearchTerm="";
+let bookletHasMore=false;
+async function booklets(reset=true){
+ const el=$("#bookletsList"), count=$("#bookletCount"), more=$("#loadMoreBooklets");
+ if(reset)bookletOffset=0;
+ el.innerHTML=reset?'<p class="muted">Loading booklets…</p>':el.innerHTML;
+ const search=$("#bookletSearch")?.value.trim()||"";
+ bookletSearchTerm=search;
+ let query=sb.from("booklets").select("id,access_token,status,created_at,expires_at,family_surname,source_booking_ref,campaigns(name)").order("created_at",{ascending:false}).range(bookletOffset,bookletOffset+bookletPageSize-1);
+ if(search)query=query.ilike("family_surname","%"+search.replace(/[%_]/g,"\\$&")+"%");
+ const {data,error}=await query;
+ if(error){if(reset)el.innerHTML="";count.innerHTML='<span class="danger">Could not load booklets: '+esc(error.message)+'</span>';more.classList.add("hidden");return;}
  const rows=data||[];
- el.innerHTML=rows.map(b=>{
+ bookletHasMore=rows.length===bookletPageSize;
+ if(reset)el.innerHTML="";
+ const markup=rows.map(b=>{
   const link=location.origin+"/treats/"+encodeURIComponent(b.access_token);
   const label=b.family_surname?esc(b.family_surname)+" family":"Family booklet";
-  const expires=b.expires_at?"Link valid until "+esc(new Date(b.expires_at).toLocaleDateString("en-GB")):"No expiry recorded";
-  const statusLabel=String(b.status||"active");
-  return '<div class="row"><div style="min-width:0;flex:1"><strong>'+label+'</strong><div class="muted">'+esc(b.campaigns?.name||"Treats campaign")+' · Created '+esc(new Date(b.created_at).toLocaleString("en-GB"))+'</div><div class="muted">'+esc(statusLabel)+' · '+expires+'</div><div><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" style="overflow-wrap:anywhere">'+esc(link)+'</a></div></div><div style="flex-shrink:0"><button type="button" class="secondary" data-copy-booklet="'+esc(b.id)+'">Copy link</button> <a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open</a></div></div>';
- }).join("")||'<p class="muted">No booklets created yet.</p>';
+  const date=b.created_at?new Date(b.created_at).toLocaleDateString("en-GB"):"Date unknown";
+  const expiry=b.expires_at?"Expires "+new Date(b.expires_at).toLocaleDateString("en-GB"):"No expiry";
+  return '<div class="booklet-row"><div class="meta"><strong>'+label+'</strong><div class="muted">Created '+esc(date)+' · '+esc(b.status||"active")+' · '+esc(expiry)+'</div></div><div class="actions"><button type="button" class="secondary" data-copy-booklet="'+esc(b.id)+'">Copy link</button><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open ↗</a></div></div>';
+ }).join("");
+ el.insertAdjacentHTML("beforeend",markup);
+ const shown=bookletOffset+rows.length;
+ count.textContent=(search?'Search results':'Latest booklets')+' · showing '+shown+(bookletHasMore?' or more':' total on this view');
+ more.classList.toggle("hidden",!bookletHasMore);
+ more.textContent="Load more booklets";
  el.querySelectorAll("[data-copy-booklet]").forEach(button=>button.onclick=async()=>{
-  const b=rows.find(x=>x.id===button.dataset.copyBooklet);if(!b)return;
+  const id=button.dataset.copyBooklet;
+  const {data:b,error:fetchError}=await sb.from("booklets").select("access_token").eq("id",id).single();
+  if(fetchError||!b){status("Could not retrieve booklet link.");return;}
   const link=location.origin+"/treats/"+encodeURIComponent(b.access_token);
   try{await navigator.clipboard.writeText(link);}
   catch{const field=document.createElement("textarea");field.value=link;document.body.appendChild(field);field.select();document.execCommand("copy");field.remove();}
   button.textContent="Copied";setTimeout(()=>button.textContent="Copy link",1800);
  });
+ bookletOffset+=rows.length;
 }
-
 async function campaigns(){
  const {data,error}=await sb.from("campaigns").select("*").order("created_at");
  if(error)return status("Could not load campaigns: "+error.message);
@@ -88,7 +107,7 @@ window.toggleOffer=async(id,active)=>{
  status("Offer "+(active?"activated":"paused")+".");await offers();
 };
 $("#signup").onclick=async()=>{const email=$("#email").value.trim();const password=$("#password").value;if(!email||password.length<8)return msg("Enter an email and a password of at least 8 characters.");const {error}=await sb.auth.signUp({email,password});if(error)msg(error.message);else msg("Account created. If email confirmation is enabled, confirm your email, then sign in.");};
-$("#login").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#password").value});if(error)msg(error.message);else load();};
+$("#login").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#password").value});if(error)msg(error.message);else };
 $("#logout").onclick=async()=>{await sb.auth.signOut();load();};
 $("#createCampaign").onclick=async()=>{
  const {error}=await sb.from("campaigns").insert({name:$("#cName").value,slug:$("#cSlug").value,town:"Hexham",starts_at:new Date($("#cStart").value).toISOString(),ends_at:new Date($("#cEnd").value).toISOString(),status:"draft"});
@@ -131,4 +150,9 @@ $("#createManualBooklet").onclick=async()=>{
  finally{button.disabled=false;button.textContent="Create extra booklet";}
 };
 
+load();
+$("#searchBooklets").onclick=()=>booklets(true);
+$("#clearBookletSearch").onclick=()=>{$("#bookletSearch").value="";booklets(true);};
+$("#bookletSearch").addEventListener("keydown",e=>{if(e.key==="Enter")booklets(true);});
+$("#loadMoreBooklets").onclick=()=>booklets(false);
 load();
