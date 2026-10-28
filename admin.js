@@ -107,7 +107,7 @@ window.toggleOffer=async(id,active)=>{
  status("Offer "+(active?"activated":"paused")+".");await offers();
 };
 $("#signup").onclick=async()=>{const email=$("#email").value.trim();const password=$("#password").value;if(!email||password.length<8)return msg("Enter an email and a password of at least 8 characters.");const {error}=await sb.auth.signUp({email,password});if(error)msg(error.message);else msg("Account created. If email confirmation is enabled, confirm your email, then sign in.");};
-$("#login").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#password").value});if(error)msg(error.message);else };
+$("#login").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#password").value});if(error)msg(error.message);else load();};
 $("#logout").onclick=async()=>{await sb.auth.signOut();load();};
 $("#createCampaign").onclick=async()=>{
  const {error}=await sb.from("campaigns").insert({name:$("#cName").value,slug:$("#cSlug").value,town:"Hexham",starts_at:new Date($("#cStart").value).toISOString(),ends_at:new Date($("#cEnd").value).toISOString(),status:"draft"});
@@ -150,7 +150,6 @@ $("#createManualBooklet").onclick=async()=>{
  finally{button.disabled=false;button.textContent="Create extra booklet";}
 };
 
-load();
 $("#searchBooklets").onclick=()=>booklets(true);
 $("#clearBookletSearch").onclick=()=>{$("#bookletSearch").value="";booklets(true);};
 $("#bookletSearch").addEventListener("keydown",e=>{if(e.key==="Enter")booklets(true);});
