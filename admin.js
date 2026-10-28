@@ -13,7 +13,7 @@ async function load(){
 }
 
 let bookletOffset=0;
-const bookletPageSize=25;
+const bookletPageSize=5;
 let bookletSearchTerm="";
 let bookletHasMore=false;
 async function booklets(reset=true){
