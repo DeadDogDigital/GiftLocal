@@ -24,7 +24,7 @@ async function confirm(code){return rpc("confirm_redemption",{p_redemption_code:
 function render(d,code){
   if(!d.valid){
     result.className="result card invalid";
-    result.innerHTML="<div class='status' style='color:var(--red)'>Not valid</div><h2>This treat isn't available</h2><p>It may already have been redeemed, or the 10-minute reservation may have expired.</p>";
+    result.innerHTML="<div class='status' style='color:var(--red)'>Not valid</div><h2>This treat isn't available</h2><p>It may already have been redeemed, or the 20-minute reservation may have expired.</p>";
   }else{
     result.className="result card valid";
     result.innerHTML=
