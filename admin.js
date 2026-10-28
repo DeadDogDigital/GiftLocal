@@ -9,8 +9,30 @@ async function load(){
  const {data:{user}}=await sb.auth.getUser();
  if(!user){$("#auth").classList.remove("hidden");$("#app").classList.add("hidden");return;}
  $("#auth").classList.add("hidden");$("#app").classList.remove("hidden");$("#userEmail").textContent=user.email||"Signed in";
- await Promise.all([campaigns(),businesses(),offers()]);
+ await Promise.all([campaigns(),businesses(),offers(),booklets()]);
 }
+
+async function booklets(){
+ const el=$("#bookletsList");
+ const {data,error}=await sb.from("booklets").select("id,access_token,status,created_at,expires_at,family_surname,source_booking_ref,campaigns(name)").order("created_at",{ascending:false}).limit(100);
+ if(error){el.innerHTML='<p class="danger">Could not load booklets: '+esc(error.message)+'</p>';return;}
+ const rows=data||[];
+ el.innerHTML=rows.map(b=>{
+  const link=location.origin+"/treats/"+encodeURIComponent(b.access_token);
+  const label=b.family_surname?esc(b.family_surname)+" family":"Family booklet";
+  const expires=b.expires_at?"Link valid until "+esc(new Date(b.expires_at).toLocaleDateString("en-GB")):"No expiry recorded";
+  const statusLabel=String(b.status||"active");
+  return '<div class="row"><div style="min-width:0;flex:1"><strong>'+label+'</strong><div class="muted">'+esc(b.campaigns?.name||"Treats campaign")+' · Created '+esc(new Date(b.created_at).toLocaleString("en-GB"))+'</div><div class="muted">'+esc(statusLabel)+' · '+expires+'</div><div><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" style="overflow-wrap:anywhere">'+esc(link)+'</a></div></div><div style="flex-shrink:0"><button type="button" class="secondary" data-copy-booklet="'+esc(b.id)+'">Copy link</button> <a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open</a></div></div>';
+ }).join("")||'<p class="muted">No booklets created yet.</p>';
+ el.querySelectorAll("[data-copy-booklet]").forEach(button=>button.onclick=async()=>{
+  const b=rows.find(x=>x.id===button.dataset.copyBooklet);if(!b)return;
+  const link=location.origin+"/treats/"+encodeURIComponent(b.access_token);
+  try{await navigator.clipboard.writeText(link);}
+  catch{const field=document.createElement("textarea");field.value=link;document.body.appendChild(field);field.select();document.execCommand("copy");field.remove();}
+  button.textContent="Copied";setTimeout(()=>button.textContent="Copy link",1800);
+ });
+}
+
 async function campaigns(){
  const {data,error}=await sb.from("campaigns").select("*").order("created_at");
  if(error)return status("Could not load campaigns: "+error.message);
@@ -104,7 +126,7 @@ $("#createManualBooklet").onclick=async()=>{
    catch{const field=document.createElement("input");field.value=link;result.appendChild(field);field.select();document.execCommand("copy");field.remove();$("#copyManualBooklet").textContent="Link copied";}
   };
   $("#manualSurname").value="";
-  status("Extra Treats booklet created.");
+  status("Extra Treats booklet created and saved to the Treats booklets list.");await booklets();
  }catch(e){status("Could not create extra booklet: "+(e.message||"Please try again."));}
  finally{button.disabled=false;button.textContent="Create extra booklet";}
 };
