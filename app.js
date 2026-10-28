@@ -92,7 +92,7 @@ async function load(){
       if(redeemed){
         action='<div class="badge">Treat redeemed</div>';
       }else if(pending){
-        action='<div class="badge">Ready to show</div><div class="show-code"><strong>SHOW THIS QR CODE TO THE BUSINESS</strong></div><div class="qr-wrap"><canvas id="qr-'+o.id+'"></canvas></div><div class="code">'+esc(r.redemption_code)+'</div><p class="meta qr-help">The business scans this code. Your treat is reserved for 10 minutes.</p><button class="fallback-redeem" data-fallback="'+o.id+'">Business: redeem on this phone</button><p class="meta fallback-help">Use this if the business cannot get a signal to scan the QR. Your phone needs an internet connection.</p>';
+        action='<div class="badge">Ready to show</div><button type="button" class="qr-toggle" data-toggle-qr="'+o.id+'" aria-expanded="true">Hide QR preview</button><div class="qr-preview" data-qr-preview="'+o.id+'"><div class="show-code"><strong>SHOW THIS QR CODE TO THE BUSINESS</strong></div><div class="qr-wrap"><canvas id="qr-'+o.id+'"></canvas></div><div class="code">'+esc(r.redemption_code)+'</div><p class="meta qr-help">The business scans this code. Your treat is reserved for 10 minutes.</p><button class="fallback-redeem" data-fallback="'+o.id+'">Business: redeem on this phone</button><p class="meta fallback-help">Use this if the business cannot get a signal to scan the QR. Your phone needs an internet connection.</p></div>';
       }else{
         action='<button data-offer="'+o.id+'">Use this treat</button>';
       }
@@ -111,6 +111,7 @@ async function load(){
 
     document.querySelectorAll("[data-offer]").forEach(b=>b.onclick=()=>showConfirm(offers.find(o=>o.id===b.dataset.offer)||{title:"this treat"},b));
     document.querySelectorAll("[data-fallback]").forEach(b=>b.onclick=()=>fallbackConfirm(offers.find(o=>o.id===b.dataset.fallback)||{title:"this treat"}));
+    document.querySelectorAll("[data-toggle-qr]").forEach(b=>b.onclick=()=>{const preview=document.querySelector('[data-qr-preview="'+b.dataset.toggleQr+'"]');if(!preview)return;const opening=preview.classList.contains("hidden");preview.classList.toggle("hidden",!opening);b.setAttribute("aria-expanded",String(opening));b.textContent=opening?"Hide QR preview":"Show QR code again";});
 
     for(const o of offers){
       const r=o.redemption;

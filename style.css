@@ -100,3 +100,9 @@ footer span{font-size:13px;color:#70766f}
 @media(min-width:620px){main{padding-left:20px;padding-right:20px}.hero{margin-left:-20px;margin-right:-20px;padding:44px 28px 38px}.offer{padding:24px}.card{padding:26px}}
 @media(max-width:380px){.confirm-actions{grid-template-columns:1fr}.hero h1{font-size:42px}.offer{padding:17px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+/* Let families tuck away the active QR while browsing their booklet. */
+.offer .qr-toggle{margin-top:12px;background:transparent;color:var(--green);border:1px solid var(--green);font-size:14px;padding:10px 13px}
+.offer .qr-toggle:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.qr-preview.hidden{display:none!important}
