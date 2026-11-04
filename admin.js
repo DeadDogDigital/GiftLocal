@@ -34,7 +34,8 @@ async function booklets(reset=true){
   const label=b.family_surname?esc(b.family_surname)+" family":"Family booklet";
   const date=b.created_at?new Date(b.created_at).toLocaleDateString("en-GB"):"Date unknown";
   const expiry=b.expires_at?"Expires "+new Date(b.expires_at).toLocaleDateString("en-GB"):"No expiry";
-  return '<div class="booklet-row"><div class="meta"><strong>'+label+'</strong><div class="muted">Created '+esc(date)+' · '+esc(b.status||"active")+' · '+esc(expiry)+'</div></div><div class="actions"><button type="button" class="secondary" data-copy-booklet="'+esc(b.id)+'">Copy link</button><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open ↗</a></div></div>';
+  const isDemo=b.family_surname==="DEMO FAMILY"&&b.source_booking_ref==="DEMO";
+  return '<div class="booklet-row"><div class="meta"><strong>'+label+(isDemo?' <span class="demo-tag">DEMO</span>':'')+'</strong><div class="muted">Created '+esc(date)+' · '+esc(b.status||"active")+' · '+esc(expiry)+'</div></div><div class="actions">'+(isDemo?'<button type="button" class="secondary" data-reset-demo="'+esc(b.id)+'">Reset demo</button>':'')+'<button type="button" class="secondary" data-copy-booklet="'+esc(b.id)+'">Copy link</button><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open ↗</a></div></div>';
  }).join("");
  el.insertAdjacentHTML("beforeend",markup);
  const shown=bookletOffset+rows.length;
@@ -49,6 +50,15 @@ async function booklets(reset=true){
   try{await navigator.clipboard.writeText(link);}
   catch{const field=document.createElement("textarea");field.value=link;document.body.appendChild(field);field.select();document.execCommand("copy");field.remove();}
   button.textContent="Copied";setTimeout(()=>button.textContent="Copy link",1800);
+ });
+ el.querySelectorAll("[data-reset-demo]").forEach(button=>button.onclick=async()=>{
+  const id=button.dataset.resetDemo;
+  if(!confirm("Reset the DEMO FAMILY booklet? This will make all its pending and redeemed treats available again. No other booklet will be changed."))return;
+  button.disabled=true;button.textContent="Resetting…";
+  const {data,error}=await sb.rpc("reset_demo_booklet",{p_booklet_id:id});
+  if(error){button.disabled=false;button.textContent="Reset demo";status("Could not reset demo booklet: "+error.message);return;}
+  status("Demo booklet reset. "+(data?.reset_records||0)+" test redemption(s) returned to unused.");
+  await booklets(true);
  });
  bookletOffset+=rows.length;
 }
