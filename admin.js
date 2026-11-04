@@ -34,8 +34,7 @@ async function booklets(reset=true){
   const label=b.family_surname?esc(b.family_surname)+" family":"Family booklet";
   const date=b.created_at?new Date(b.created_at).toLocaleDateString("en-GB"):"Date unknown";
   const expiry=b.expires_at?"Expires "+new Date(b.expires_at).toLocaleDateString("en-GB"):"No expiry";
-  const isDemo=b.family_surname==="DEMO FAMILY"&&b.source_booking_ref==="DEMO";
-  return '<div class="booklet-row"><div class="meta"><strong>'+label+(isDemo?' <span class="demo-tag">DEMO</span>':'')+'</strong><div class="muted">Created '+esc(date)+' · '+esc(b.status||"active")+' · '+esc(expiry)+'</div></div><div class="actions">'+(isDemo?'<button type="button" class="secondary" data-reset-demo="'+esc(b.id)+'">Reset demo</button>':'')+'<button type="button" class="secondary" data-copy-booklet="'+esc(b.id)+'">Copy link</button><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open ↗</a></div></div>';
+  return '<div class="booklet-row"><div class="meta"><strong>'+label+'</strong><div class="muted">Created '+esc(date)+' · '+esc(b.status||"active")+' · '+esc(expiry)+'</div></div><div class="actions"><button type="button" class="secondary" data-manage-booklet="'+esc(b.id)+'">Manage</button><button type="button" class="secondary" data-copy-booklet="'+esc(b.id)+'">Copy link</button><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open ↗</a></div></div>';
  }).join("");
  el.insertAdjacentHTML("beforeend",markup);
  const shown=bookletOffset+rows.length;
@@ -51,16 +50,29 @@ async function booklets(reset=true){
   catch{const field=document.createElement("textarea");field.value=link;document.body.appendChild(field);field.select();document.execCommand("copy");field.remove();}
   button.textContent="Copied";setTimeout(()=>button.textContent="Copy link",1800);
  });
- el.querySelectorAll("[data-reset-demo]").forEach(button=>button.onclick=async()=>{
-  const id=button.dataset.resetDemo;
-  if(!confirm("Reset the DEMO FAMILY booklet? This will make all its pending and redeemed treats available again. No other booklet will be changed."))return;
-  button.disabled=true;button.textContent="Resetting…";
-  const {data,error}=await sb.rpc("reset_demo_booklet",{p_booklet_id:id});
-  if(error){button.disabled=false;button.textContent="Reset demo";status("Could not reset demo booklet: "+error.message);return;}
-  status("Demo booklet reset. "+(data?.reset_records||0)+" test redemption(s) returned to unused.");
-  await booklets(true);
- });
+ el.querySelectorAll("[data-manage-booklet]").forEach(button=>button.onclick=()=>showBookletDetails(button.dataset.manageBooklet));
  bookletOffset+=rows.length;
+}
+let selectedBookletId=null;
+async function showBookletDetails(id){
+ const panel=$("#bookletDetails"), content=$("#bookletDetailsContent");
+ panel.classList.remove("hidden");
+ content.innerHTML='<p class="muted">Loading booklet details…</p>';
+ selectedBookletId=id;
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
+ const {data:b,error}=await sb.from("booklets").select("id,family_surname,source_booking_ref,status,created_at,expires_at,access_token").eq("id",id).single();
+ if(error||!b){content.innerHTML='<p class="danger">Could not load this booklet.</p>';return;}
+ const isDemo=b.family_surname==="DEMO FAMILY"&&b.source_booking_ref==="DEMO";
+ const link=location.origin+"/treats/"+encodeURIComponent(b.access_token);
+ content.innerHTML='<div class="row"><div><strong>'+esc(b.family_surname?b.family_surname+" family":"Family booklet")+'</strong><div class="muted">Booking reference: '+esc(b.source_booking_ref||"Not set")+' · Status: '+esc(b.status||"active")+'</div><div class="muted">Created '+esc(b.created_at?new Date(b.created_at).toLocaleString("en-GB"):"Unknown")+' · '+esc(b.expires_at?"Expires "+new Date(b.expires_at).toLocaleDateString("en-GB"):"No expiry")+'</div></div><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open family booklet ↗</a></div>'+(isDemo?'<div class="notice"><strong>Demo controls</strong><p class="muted">This is the designated demo booklet. Resetting it will make its pending and redeemed treats available to demonstrate again. No other booklet will be changed.</p><button type="button" id="resetDemoBooklet">Reset demo booklet</button></div>':'<p class="muted">No demo controls are available for this family booklet.</p>');
+ if(isDemo)$("#resetDemoBooklet").onclick=async()=>{
+  if(!confirm("Reset the DEMO FAMILY booklet? All pending and redeemed treats in this demo booklet will be returned to unused. No real family booklet will be changed."))return;
+  const button=$("#resetDemoBooklet");button.disabled=true;button.textContent="Resetting…";
+  const {data,error:resetError}=await sb.rpc("reset_demo_booklet",{p_booklet_id:id});
+  if(resetError){button.disabled=false;button.textContent="Reset demo booklet";status("Could not reset demo booklet: "+resetError.message);return;}
+  status("Demo booklet reset. "+(data?.reset_records||0)+" test redemption(s) returned to unused.");
+  await showBookletDetails(id);
+ };
 }
 async function campaigns(){
  const {data,error}=await sb.from("campaigns").select("*").order("created_at");
